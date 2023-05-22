@@ -1,0 +1,77 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include<string.h>
+
+//fread cuando llega al final devuelve 0
+     typedef struct {
+     int legajo;
+     char nombreYapellido [30];
+     int edad;
+     }Alumno;
+
+int main()
+{
+
+    cargarAlumnos();
+    mostrarTodo();
+
+}
+
+void cargarAlumnos (){
+
+    int contador = 0;
+    char continuar;
+
+
+    Alumno alumno;
+    FILE *archi;
+    archi = fopen("alumnitos.bin", "wb");
+
+if(archi != NULL){
+ do{
+        printf("ingrese en numero de legajo\n");
+        fflush(stdin);
+        scanf("%i", &alumno.legajo);
+        printf("ingrese el nombre y el apellido\n");
+        fflush(stdin);
+        gets(&alumno.nombreYapellido);
+        printf("ingrese la edad\n");
+        fflush(stdin);
+        scanf("%i", &alumno.edad);
+
+        fwrite(&alumno, sizeof(Alumno),1,archi);
+
+        contador++;
+
+        printf("ingrese 's' si desea ingresar mas alumnos\n");
+        fflush(stdin);
+        scanf("%c", &continuar);
+    }while(continuar == 's');
+    }
+     fclose(archi);
+
+}
+
+void mostrar (Alumno alumno){
+
+    printf("legajo:%i\n",alumno.legajo);
+    printf("nombre: %s\n", alumno.nombreYapellido);
+    printf("edad:%i\n", alumno.edad);
+
+}
+
+void mostrarTodo (){
+Alumno alumno1;
+FILE *archi;
+archi = fopen("alumnitos.bin", "rb");
+
+if (archi != NULL){
+    while(!feof(archi)){
+        fread(&alumno1,sizeof(Alumno),1,archi);
+        if(!feof(archi)){
+         mostrar(alumno1);
+            }
+    }
+    fclose(archi);
+ }
+}
