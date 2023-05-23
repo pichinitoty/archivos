@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include<string.h>
+#include "pila.h"
 
 //fread cuando llega al final devuelve 0
      typedef struct {
@@ -9,23 +10,67 @@
      int edad;
      }Alumno;
 
+void cargarAlumnos ();
+void show (Alumno alumno);
+int mostrarTodo ();
+void mayoresDeEdad (Pila *pila);
+int buscarEdad (int edad);
+void rangoEdad (int edad1, int edad2);
+int buscar_mayor ();
+void mostrar_mayor (int mayor);
 int main()
 {
 
+    int alumnos;
+
     cargarAlumnos();
-    mostrarTodo();
+    alumnos = mostrarTodo();
+
+    printf ("\nLa cantidad de alumnos es de: %i\n", alumnos);
+
+    Pila pila;
+    inicpila (&pila);
+    mayoresDeEdad(&pila);
+
+    int edad;
+    printf("Ingrese una edad: \n");
+    fflush(stdin);
+    scanf ("%i", &edad);
+
+    int cantidadMayores = buscarEdad (edad);
+    printf("La cantidad de alumnos mayores a la edad ingresada son: %i\n", cantidadMayores);
+
+    int edad1;
+    int edad2;
+    printf("Ingrese el primer parametro para el rango de edad que quiera ver: \n");
+    fflush(stdin);
+    scanf ("%i", &edad1);
+
+    printf ("Ingrese el segundo parametro para el rango de edad que quiera ver: \n");
+    fflush (stdin);
+    scanf ("%i", &edad2);
+
+    printf("los alumnos dentro de ese rango de edad son:\n");
+
+    rangoEdad (edad1,edad2);
+
+    printf("El mayor alumno es: \n");
+    int mayor = buscar_mayor ();
+
+    mostrar_mayor(mayor);
+
 
 }
 
 void cargarAlumnos (){
 
-    int contador = 0;
+
     char continuar;
 
 
     Alumno alumno;
     FILE *archi;
-    archi = fopen("alumnitos.bin", "wb");
+    archi = fopen("alumnitos.bin", "ab");
 
 if(archi != NULL){
  do{
@@ -34,14 +79,14 @@ if(archi != NULL){
         scanf("%i", &alumno.legajo);
         printf("ingrese el nombre y el apellido\n");
         fflush(stdin);
-        gets(&alumno.nombreYapellido);
+        gets(alumno.nombreYapellido);
         printf("ingrese la edad\n");
         fflush(stdin);
         scanf("%i", &alumno.edad);
 
         fwrite(&alumno, sizeof(Alumno),1,archi);
 
-        contador++;
+
 
         printf("ingrese 's' si desea ingresar mas alumnos\n");
         fflush(stdin);
@@ -52,7 +97,7 @@ if(archi != NULL){
 
 }
 
-void mostrar (Alumno alumno){
+void show (Alumno alumno){
 
     printf("legajo:%i\n",alumno.legajo);
     printf("nombre: %s\n", alumno.nombreYapellido);
@@ -60,8 +105,9 @@ void mostrar (Alumno alumno){
 
 }
 
-void mostrarTodo (){
+int mostrarTodo (){
 Alumno alumno1;
+int contador = 0;
 FILE *archi;
 archi = fopen("alumnitos.bin", "rb");
 
@@ -69,9 +115,104 @@ if (archi != NULL){
     while(!feof(archi)){
         fread(&alumno1,sizeof(Alumno),1,archi);
         if(!feof(archi)){
-         mostrar(alumno1);
+         contador ++;
+         show(alumno1);
             }
     }
     fclose(archi);
  }
+return contador;
+}
+
+void mayoresDeEdad (Pila *pila){
+    Alumno estudiante;
+
+    FILE *archi;
+    archi = fopen("alumnitos.bin", "rb");
+
+    if (archi != NULL){
+        while(!feof(archi)){
+        fread(&estudiante,sizeof(Alumno),1,archi);
+        if(!feof(archi) && estudiante.edad > 17){
+            apilar(pila, estudiante.legajo);
+
+            }
+        }
+        fclose(archi);
+    }
+mostrar(pila);
+
+}
+
+int buscarEdad (int edad){
+    Alumno estudiante;
+    int conta = 0;
+    FILE *archi;
+    archi = fopen("alumnitos.bin", "rb");
+
+    if (archi != NULL){
+        while(!feof(archi)){
+        fread(&estudiante,sizeof(Alumno),1,archi);
+            if(!feof(archi) && estudiante.edad > edad){
+                conta ++;
+            }
+        }
+    fclose(archi);
+    }
+
+return conta;
+}
+
+
+void rangoEdad (int edad1, int edad2){
+    Alumno estudiante;
+    int conta = 0;
+
+    FILE *archi;
+    archi = fopen("alumnitos.bin", "rb");
+
+    if (archi != NULL){
+        while(!feof(archi)){
+        fread(&estudiante,sizeof(Alumno),1,archi);
+            if(!feof(archi) && estudiante.edad > edad1 && estudiante.edad < edad2){
+            printf("%s", estudiante.nombreYapellido);
+           printf("\n");
+            }
+        }
+    fclose(archi);
+    }
+}
+
+int buscar_mayor (){
+    Alumno estudiante;
+    int mayor = 0;
+    FILE *archi;
+    archi = fopen("alumnitos.bin", "rb");
+
+    if (archi!= NULL){
+        while(!feof(archi)){
+        fread(&estudiante,sizeof(Alumno),1,archi);
+            if(!feof(archi) && estudiante.edad > mayor){
+            mayor = estudiante.edad;
+            }
+        }
+    fclose(archi);
+    }
+return mayor;
+}
+void mostrar_mayor (int mayor){
+
+    Alumno estudiante;
+    FILE *archi;
+    archi = fopen("alumnitos.bin", "rb");
+
+    if (archi!= NULL){
+        while(!feof(archi)){
+        fread(&estudiante,sizeof(Alumno),1,archi);
+            if(!feof(archi) && mayor == estudiante.edad){
+                show(estudiante);
+            }
+        }
+    fclose(archi);
+    }
 }
